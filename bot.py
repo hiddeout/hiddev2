@@ -1,9 +1,9 @@
-""""
+"""
 Copyright © Krypton 2019-2023 - https://github.com/kkrypt0nn (https://krypton.ninja)
+Description:
+🐍 A simple template to start to code your own and personalized discord bot in Python programming language.
 
 Version: 6.1.0
-
-Modified by Y.Ozaki - https://github.com/mttk1528
 """
 
 import json
@@ -27,7 +27,7 @@ else:
     with open(f"{os.path.realpath(os.path.dirname(__file__))}/config.json") as file:
         config = json.load(file)
 
-"""
+"""	
 Setup bot intents (events restrictions)
 For more information about intents, please go to the following websites:
 https://discordpy.readthedocs.io/en/latest/intents.html
