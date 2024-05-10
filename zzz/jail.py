@@ -14,23 +14,20 @@ class Jail(commands.Cog, name="Jail"):
         self.db_path = os.path.join(db_dir, 'database.db')
         self.schema_path = os.path.join(db_dir, 'schema.sql')
 
-    async def cog_load(self):
-        """Initializes the database on cog load."""
         # Connect to the database
-        self.bot.db = await aiosqlite.connect(self.db_path)
-        # Ensure tables are created
-        await self.init_db()
+        self.bot.loop.create_task(self.init_db())
 
     async def init_db(self):
         """Initializes the database and creates tables as per schema.sql."""
+        self.bot.db = await aiosqlite.connect(self.db_path)
         # Use executescript to run SQL commands from the schema file
         with open(self.schema_path, 'r') as schema_file:
             schema_sql = schema_file.read()
         await self.bot.db.executescript(schema_sql)
         await self.bot.db.commit()
 
-    async def cog_unload(self):
-        """Close the database connection when the cog is unloaded."""
+    async def close(self):
+        """Close the database connection when the bot is shutting down."""
         await self.bot.db.close()
 
     @commands.command(name="setjail", description="Sets the jail role and channel for the server.")
@@ -93,4 +90,9 @@ class Jail(commands.Cog, name="Jail"):
             await ctx.send(f"{member.mention} has been released from jail.")
 
 async def setup(bot):
-    await bot.add_cog(Jail(bot))
+    jail = Jail(bot)
+    await jail.init_db()
+    bot.add_cog(jail)
+
+async def close(bot):
+    await bot.get_cog('Jail').close()

@@ -34,9 +34,3 @@ CREATE TABLE IF NOT EXISTS afk (
   afk_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (guild_id, user_id)
 );
-
--- Table for guild prefixes
-CREATE TABLE IF NOT EXISTS guild_prefixes (
-    guild_id INTEGER PRIMARY KEY,
-    prefix TEXT NOT NULL DEFAULT '!'
-);

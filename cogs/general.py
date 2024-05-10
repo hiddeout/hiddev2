@@ -65,12 +65,6 @@ class General(commands.Cog, name="general"):
 
         await context.send(embed=embed)
 
-        """
-
-
-
-
-
 
 
 
@@ -79,8 +73,10 @@ class General(commands.Cog, name="general"):
         embed = discord.Embed(description="", color=0xBEBEFE)
         embed.add_field(name="Prefix:", value=f"{self.bot.config['prefix']} for normal commands", inline=False)
         await context.send(embed=embed)
+"""
 
-    @commands.hybrid_command(name="serverinfo", description="get the bot prefix.")
+
+    @commands.hybrid_command(name="serverinfo2", description="get the bot prefix.")
     async def serverinfo(self, context: Context):
         roles = [role.name for role in context.guild.roles if not role.is_default()]
         embed = discord.Embed(title="Server Information", description=f"{context.guild.name}", color=0xBEBEFE)

@@ -1,12 +1,7 @@
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Logged in as hidde
-[2024-05-09 22:25:50] [INFO    ] discord_bot: discord.py API version: 2.0.1
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Python version: 3.12.3
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Running on: Windows 11 (nt)
-[2024-05-09 22:25:50] [INFO    ] discord_bot: -------------------
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Loaded extension 'events'
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Loaded extension 'general'
-[2024-05-09 22:25:50] [ERROR   ] discord_bot: Failed to load extension jail
-ExtensionFailed: Extension 'cogs.jail' raised an error: FileNotFoundError: [Errno 2] No such file or directory: 'd:\\Reps\\hiddeout-bot\\cogs\\database\\schema.sql'
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Loaded extension 'moderation'
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Loaded extension 'owner'
-[2024-05-09 22:25:50] [INFO    ] discord_bot: Loaded extension 'template'
+2024-05-10 15:53:47,831:INFO:discord_bot: Executing schema SQL script.
+2024-05-10 15:53:47,834:INFO:discord_bot: Loaded extension 'events'
+2024-05-10 15:53:47,835:INFO:discord_bot: Loaded extension 'general'
+2024-05-10 15:53:47,837:INFO:discord_bot: Loaded extension 'moderation'
+2024-05-10 15:53:47,838:INFO:discord_bot: Loaded extension 'owner'
+2024-05-10 15:53:47,838:INFO:discord_bot: Loaded extension 'template'
+2024-05-10 15:53:47,840:INFO:discord_bot: Loaded extension 'utility'

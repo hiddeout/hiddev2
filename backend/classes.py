@@ -2,7 +2,7 @@ import discord
 
 class Colors: 
     red = 0xbc9cfc
-    green = 0xbc9cfc
+    green = 0x85e984
     yellow = 0xF4DB6D
     gold = 0xb4baf7
     default = 0xF4DB6D
