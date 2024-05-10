@@ -1,14 +1,12 @@
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
-import json
 import logging
 import os
-import platform
 import random
 import sys
 import aiosqlite
-
+from backend.classes import Colors, Emojis
 from database import DatabaseManager
 
 # Setup logging
@@ -21,20 +19,30 @@ load_dotenv()
 intents = discord.Intents.default()
 intents.messages = True
 intents.message_content = True
-
-# Define the get_prefix function correctly outside of the class
-async def get_prefix(bot, message):
-    default_prefix = '!'  # This should be configurable
-    if not message.guild:
-        return commands.when_mentioned_or(default_prefix)(bot, message)
-    async with bot.database.connection.execute("SELECT prefix FROM guild_prefixes WHERE guild_id = ?", (message.guild.id,)) as cursor:
-        prefix = await cursor.fetchone()
-        return commands.when_mentioned_or(prefix[0] if prefix else default_prefix)(bot, message)
+intents.guilds = True
 
 class DiscordBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=get_prefix, intents=intents, help_command=None)
+        super().__init__(command_prefix=self.dynamic_prefix, intents=intents, help_command=None)
         self.database = None
+
+    async def dynamic_prefix(self, bot, message):
+        """Dynamically get the prefix for the guild from the database."""
+        if not message.guild:
+            return commands.when_mentioned_or("!")(bot, message)
+        prefix = await self.get_server_prefix(message.guild.id)
+        return commands.when_mentioned_or(prefix)(bot, message)
+
+    async def get_server_prefix(self, guild_id):
+        """Utility function to fetch the current guild prefix."""
+        default_prefix = "!"  # Default to '!' or retrieve from a config/environment variable
+        try:
+            async with self.database.connection.execute("SELECT prefix FROM guild_prefixes WHERE guild_id = ?", (guild_id,)) as cursor:
+                result = await cursor.fetchone()
+                return result[0] if result else default_prefix
+        except Exception as e:
+            logging.error(f"Failed to fetch prefix for guild {guild_id}: {e}")
+            return default_prefix
 
     async def init_db(self):
         self.database = DatabaseManager(connection=await aiosqlite.connect('database/database.db'))
@@ -74,16 +82,29 @@ class DiscordBot(commands.Bot):
     async def on_message(self, message):
         if message.author.bot:
             return
+        if message.content.strip() == f"<@!{self.user.id}>":
+            prefix = await self.get_server_prefix(message.guild.id if message.guild else None)
+            await message.channel.send(f"My prefix here is `{prefix}`.")
         await self.process_commands(message)
 
     async def on_command_error(self, context, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            await context.send("This command is on cooldown.")
+        if isinstance(error, commands.CommandNotFound):
+            prefix = await self.get_server_prefix(context.guild.id if context.guild else None)
+            embed = discord.Embed(
+                description=f"{Emojis.warning} Command not found. Use `{prefix}help` for a list of commands.",
+                color=Colors.yellow
+            )
+            await context.send(embed=embed)
+        elif isinstance(error, commands.CommandOnCooldown):
+            embed = discord.Embed(description=f"{Emojis.warning} This command is on cooldown.", color=Colors.yellow)
+            await context.send(embed=embed)
         elif isinstance(error, commands.CheckFailure):
-            await context.send("You do not have permission to use this command.")
+            embed = discord.Embed(description=f"{Emojis.wrong} You do not have permission to use this command.", color=Colors.red)
+            await context.send(embed=embed)
         else:
             logging.error("Unhandled command error: %s", str(error), exc_info=True)
-            await context.send(f"An error occurred: {str(error)}")
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {str(error)}", color=Colors.red)
+            await context.send(embed=embed)
 
 bot = DiscordBot()
 bot.run(os.getenv("TOKEN"))

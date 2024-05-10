@@ -21,7 +21,7 @@ class Events(commands.Cog, name="events"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        message = self.bot.get_channel(1238211693415497789)
+        message = self.bot.get_channel(1229643685981978664)
         embed = discord.Embed(color=Colors.default, title=f"**restarted**", description=f"> placeholder online - back online")
         embed.set_footer(text="connected to discord API")    
         await message.send(embed=embed)
