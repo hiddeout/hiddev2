@@ -256,7 +256,7 @@ class DiscordBot(commands.Bot):
                     f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the guild {context.guild.name} (ID: {context.guild.id}), but the user is not an owner of the bot."
                 )
             else:
-                self.logger.warning(
+                self.logger.waarning(
                     f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the bot's DMs, but the user is not an owner of the bot."
                 )
         elif isinstance(error, commands.MissingPermissions):
