@@ -55,15 +55,13 @@ class General(commands.Cog, name="general"):
 
         await context.send(embed=embed)
 
-    @commands.hybrid_command(name="botinfo", description="Get some useful (or not) information about the bot.")
+    @commands.hybrid_command(name="prefix", description="bot prefix.")
     async def botinfo(self, context: Context):
-        embed = discord.Embed(description="no", color=0xBEBEFE)
-        embed.add_field(name="Owner:", value="@omtfiji", inline=True)
+        embed = discord.Embed(description="", color=0xBEBEFE)
         embed.add_field(name="Prefix:", value=f"{self.bot.config['prefix']} for normal commands", inline=False)
-        embed.set_footer(text=f"Requested by {context.author}")
         await context.send(embed=embed)
 
-    @commands.hybrid_command(name="serverinfo", description="Get some useful (or not) information about the server.")
+    @commands.hybrid_command(name="serverinfo", description="get the bot prefix.")
     async def serverinfo(self, context: Context):
         roles = [role.name for role in context.guild.roles if not role.is_default()]
         embed = discord.Embed(title="Server Information", description=f"{context.guild.name}", color=0xBEBEFE)
