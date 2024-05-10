@@ -9,7 +9,7 @@ class Colors:
     rainbow = 0x2f3136
 
 class Emojis:
-    check = "<:haunt_check:1112707847734698015>"
-    wrong = "<:haunt_cross:1112707850561650698>"
-    warning = "<:haunt_warn:1112707865594036269>"
+    check = "<:approve:1229814143209439282>"
+    wrong = "<:deny:1229815132553744565>"
+    warning = "<:warning:1229814182988480663>"
 

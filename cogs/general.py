@@ -34,6 +34,16 @@ class General(commands.Cog, name="general"):
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+
+
+
+
+
+
+
+
+
+        """  help command is not working
     @commands.hybrid_command(name="help", description="List all commands the bot has loaded.")
     async def help(self, context: Context):
         prefix = self.bot.config["prefix"]
@@ -54,6 +64,15 @@ class General(commands.Cog, name="general"):
                 embed.add_field(name=cog_name.capitalize(), value="```" + "\n".join(command_list) + "```", inline=False)
 
         await context.send(embed=embed)
+
+        """
+
+
+
+
+
+
+
 
     @commands.hybrid_command(name="prefix", description="bot prefix.")
     async def botinfo(self, context: Context):
