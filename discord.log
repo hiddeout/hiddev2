@@ -1,11 +1,11 @@
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Logged in as hidde
-[2024-05-09 21:41:13] [INFO    ] discord_bot: discord.py API version: 2.0.1
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Python version: 3.12.3
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Running on: Windows 11 (nt)
-[2024-05-09 21:41:13] [INFO    ] discord_bot: -------------------
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Loaded extension 'events'
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Loaded extension 'general'
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Loaded extension 'moderation'
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Loaded extension 'owner'
-[2024-05-09 21:41:13] [INFO    ] discord_bot: Loaded extension 'template'
-[2024-05-09 21:41:19] [INFO    ] discord_bot: Executed help command in HIDDEOUT DEV (ID: 1229156648757493884) by omtfiji#0 (ID: 971464344749629512)
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Logged in as hidde
+[2024-05-09 22:00:31] [INFO    ] discord_bot: discord.py API version: 2.0.1
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Python version: 3.12.3
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Running on: Windows 11 (nt)
+[2024-05-09 22:00:31] [INFO    ] discord_bot: -------------------
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Loaded extension 'events'
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Loaded extension 'general'
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Loaded extension 'moderation'
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Loaded extension 'owner'
+[2024-05-09 22:00:31] [INFO    ] discord_bot: Loaded extension 'template'
+[2024-05-09 22:00:34] [INFO    ] discord_bot: Executed botinfo command in HIDDEOUT DEV (ID: 1229156648757493884) by omtfiji#0 (ID: 971464344749629512)
