@@ -63,7 +63,7 @@ class Moderation(commands.Cog, name="moderation"):
                     embed = discord.Embed(description=description, color=Colors.green)
                     await ctx.send(embed=embed)
                 except discord.Forbidden:
-                    description = f"{Emojis.error} Failed to send a message to {user.mention} or ban them."
+                    description = f"{Emojis.wrong} Failed to send a message to {user.mention} or ban them."
                     embed = discord.Embed(description=description, color=Colors.red)
                     await ctx.send(embed=embed)
 
@@ -79,11 +79,11 @@ class Moderation(commands.Cog, name="moderation"):
                 embed = discord.Embed(description=description, color=Colors.green)
                 await ctx.send(embed=embed)
             except discord.NotFound:
-                description = f"{Emojis.error} `{user}` is not banned from the server."
+                description = f"{Emojis.wrong} `{user}` is not banned from the server."
                 embed = discord.Embed(description=description, color=Colors.red)
                 await ctx.send(embed=embed)
             except discord.Forbidden:
-                description = f"{Emojis.error} Failed to unban `{user}`."
+                description = f"{Emojis.wrong} Failed to unban `{user}`."
                 embed = discord.Embed(description=description, color=Colors.red)
                 await ctx.send(embed=embed)
 
