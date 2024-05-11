@@ -38,44 +38,5 @@ class General(commands.Cog, name="general"):
 
 
 
-
-
-
-
-
-        """  help command is not working
-    @commands.hybrid_command(name="help", description="List all commands the bot has loaded.")
-    async def help(self, context: Context):
-        prefix = self.bot.config["prefix"]
-        embed = discord.Embed(title="Help", description="List of available commands:", color=0xBEBEFE)
-        
-        for cog_name in self.bot.cogs:
-            if cog_name.lower() == "events":
-                continue
-            if cog_name.lower() == "owner" and not (await self.bot.is_owner(context.author)):
-                continue
-
-            cog = self.bot.get_cog(cog_name)
-            if cog is None:
-                continue
-            commands = cog.get_commands()
-            command_list = [f"{prefix}{cmd.name} - {cmd.description.partition('\n')[0]}" for cmd in commands if cmd.description]
-            if command_list:
-                embed.add_field(name=cog_name.capitalize(), value="```" + "\n".join(command_list) + "```", inline=False)
-
-        await context.send(embed=embed)
-
-"""
-
-
-    @commands.hybrid_command(name="serverinfo2", description="get the bot prefix.")
-    async def serverinfo(self, context: Context):
-        roles = [role.name for role in context.guild.roles if not role.is_default()]
-        embed = discord.Embed(title="Server Information", description=f"{context.guild.name}", color=0xBEBEFE)
-        embed.add_field(name="Server ID", value=context.guild.id)
-        embed.add_field(name="Member Count", value=context.guild.member_count)
-        embed.add_field(name="Roles", value=", ".join(roles) if roles else "No roles", inline=False)
-        await context.send(embed=embed)
-        
 async def setup(bot):
     await bot.add_cog(General(bot))

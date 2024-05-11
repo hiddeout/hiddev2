@@ -51,3 +51,22 @@ CREATE TABLE IF NOT EXISTS snipe (
     attachment_url TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Table for warnings
+CREATE TABLE IF NOT EXISTS warnings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    moderator_id TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Table for forced nicknames
+CREATE TABLE IF NOT EXISTS forced_nicknames (
+    guild_id TEXT,
+    member_id TEXT,
+    nickname TEXT,
+    PRIMARY KEY (guild_id, member_id)
+);

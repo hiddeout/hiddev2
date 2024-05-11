@@ -11,7 +11,7 @@ class Owner(commands.Cog, name="Owner"):
 
     # Define your commands within the Owner cog
 
-    @commands.command(help="invite the bot in your server", aliases=["inv"], description="info")
+"""     @commands.command(help="invite the bot in your server", aliases=["inv"], description="info")
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def invite(self, ctx):
         button = discord.ui.Button(label="invite", style=discord.ButtonStyle.url, url=discord.utils.oauth_url(client_id=self.bot.user.id, permissions=discord.Permissions.all()))
@@ -20,7 +20,7 @@ class Owner(commands.Cog, name="Owner"):
         view.add_item(button)
         view.add_item(button2)
         await ctx.reply(view=view, mention_author=False)
-
+ """
 # Setup function to add cogs to the bot
 
 

@@ -5,7 +5,7 @@ class Colors:
     green = 0x85e984
     yellow = 0xF4DB6D
     gold = 0xb4baf7
-    default = 0xF4DB6D
+    default = 0x2b2d31
     rainbow = 0x2f3136
 
 class Emojis:

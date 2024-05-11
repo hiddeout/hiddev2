@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import logging
 import os
 import datetime
+import discord_ios
 import aiosqlite
 from backend.classes import Colors, Emojis
 from database import DatabaseManager
