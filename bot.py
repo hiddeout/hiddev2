@@ -1,9 +1,11 @@
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
+from discord import Status
 import logging
 import os
 import random
+import discord_ios
 import sys
 import aiosqlite
 from backend.classes import Colors, Emojis
@@ -57,8 +59,10 @@ class DiscordBot(commands.Bot):
     async def setup_hook(self):
         await self.init_db()
         await self.load_cogs()
-        self.status_task.start()
+    """ 
 
+        self.status_task.start()
+    """
     async def load_cogs(self):
         cogs_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cogs")
         for file in os.listdir(cogs_dir):
@@ -70,14 +74,15 @@ class DiscordBot(commands.Bot):
                 except Exception as e:
                     logging.error(f"Failed to load extension {extension}.", exc_info=True)
 
-    @tasks.loop(minutes=1)
+    """     @tasks.loop(minutes=1)
     async def status_task(self):
-        statuses = ["dev", "hiddeout"]
-        await self.change_presence(activity=discord.Game(random.choice(statuses)))
+        statuses = ["", ""]  # You can add custom statuses here if needed
+        await self.change_presence(status=Status.online)
 
     @status_task.before_loop
     async def before_status_task(self):
         await self.wait_until_ready()
+    """
 
     async def on_message(self, message):
         if message.author.bot:

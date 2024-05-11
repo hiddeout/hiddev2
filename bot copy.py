@@ -4,7 +4,8 @@ import os
 import platform
 import random
 import sys
-
+import discord_ios
+import asyncio
 import aiosqlite
 import discord
 from discord.ext import commands, tasks
@@ -79,10 +80,14 @@ class DiscordBot(commands.Bot):
                 except Exception as e:
                     logger.error(f"Failed to load extension {extension}.", exc_info=e)
 
-    @tasks.loop(minutes=1)
-    async def status_task(self):
-        statuses = ["dev", "hiddeout"]
-        await self.change_presence(activity=discord.Game(random.choice(statuses)))
+@tasks.loop(minutes=5)
+async def status(): 
+   list = [";help"]
+   activities = []
+   for a in activities:
+    for l in list: 
+     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=get_status(a), name=l, url="https://twitch.tv/lol"))
+     await asyncio.sleep(20) 
 
     @status_task.before_loop
     async def before_status_task(self):

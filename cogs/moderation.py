@@ -87,5 +87,31 @@ class Moderation(commands.Cog, name="moderation"):
                 embed = discord.Embed(description=description, color=Colors.red)
                 await ctx.send(embed=embed)
 
+    @commands.command(name="role", help="Assign or remove a role from a member", usage="[member] [role]", description="Moderation")
+    @commands.cooldown(1, 3, commands.BucketType.user) 
+    @commands.has_permissions(manage_roles=True)
+    async def role(self, ctx, user: discord.Member = None, *, role: discord.Role = None):
+        """Assign or remove a role from a member."""
+        async with ctx.typing():
+            if not user or not role:
+                return await ctx.send("Please provide a valid member and role.")
+
+            if role.position >= ctx.author.top_role.position and ctx.author.id != ctx.guild.owner.id: 
+                description = f"{Emojis.warning} {ctx.author.mention}: that role is above your top role"
+                embed = discord.Embed(description=description, color=Colors.yellow)
+                return await ctx.send(embed=embed)
+
+            if role in user.roles:
+                await user.remove_roles(role)
+                description = f"{Emojis.remove} {ctx.author.mention}: Removed {role.mention} from {user.mention}"
+                embed = discord.Embed(description=description, color=Colors.green)
+                await ctx.send(embed=embed)
+            else:
+                await user.add_roles(role)
+                description = f"{Emojis.add} {ctx.author.mention}: Added {role.mention} to {user.mention}"
+                embed = discord.Embed(description=description, color=Colors.green)
+                await ctx.send(embed=embed)
+
+
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
