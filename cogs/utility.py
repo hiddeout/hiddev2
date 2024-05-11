@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ext.commands import Context  # This import is crucial for using Context
 import asyncio
 import aiosqlite
 import os
@@ -32,6 +31,18 @@ class Utility(commands.Cog):
     async def cog_unload(self):
         await self.bot.db.close()
 
+    """ 
+    @commands.slash_command(name="hello", description="Makes the bot say hello")
+    async def hello(self, ctx: commands.SlashContext):
+        await ctx.respond("Hello!")
+
+    @commands.command(name="syncslash", description="Syncs the slash commands to the server")
+    @commands.is_owner()  # Only allows the owner of the bot to use this command
+    async def syncslash(self, ctx: commands.Context):
+        await self.bot.sync_all_commands()  # Syncs all commands
+        await ctx.send("Synced all slash commands to the server.")
+    
+    """
     @commands.hybrid_command(help="afk", description="Set AFK status", usage="[reason]")
     async def afk(self, ctx, *, reason="AFK"):
         now = datetime.datetime.utcnow()
@@ -85,6 +96,58 @@ class Utility(commands.Cog):
     def contains_invite_link(self, content):
         invite_pattern = r"(discord.gg/|discord.com/invite/|discordapp.com/invite/)[a-zA-Z0-9]+"
         return bool(re.search(invite_pattern, content))
+
+    @commands.command(ping="Check the bot's latency", description="info")
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    @commands.guild_only()  # Ensures the command only works in guilds
+    async def ping(self, ctx):
+        latency = round(self.bot.latency * 1000)  # Convert latency to milliseconds
+        embed = discord.Embed(color=Colors.default, description=f"📡 Latency: `{latency}ms`")
+        await ctx.reply(embed=embed, mention_author=False)
+
+    @commands.command(help="Set slowmode for the current channel", description="Moderation")
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def slowmode(self, ctx, action: str, seconds: int = None):
+        if not ctx.author.guild_permissions.manage_channels:
+            await ctx.send("You do not have permission to manage channels.")
+            return 
+
+        if action.lower() == "on":
+            if seconds is None:
+                await ctx.send("Please specify the number of seconds for slowmode.")
+                return
+
+            try:
+                await ctx.channel.edit(slowmode_delay=seconds)
+                embed = discord.Embed(
+                    description=f"{Emojis.check} {ctx.author.mention}: Set the **message delay** to `{seconds}s` in {ctx.channel.mention}",
+                    color=Colors.green
+                )
+                await ctx.send(embed=embed)
+            except discord.Forbidden:
+                await ctx.send("I do not have permission to edit slowmode in this channel.")
+            except discord.HTTPException as e:
+                await ctx.send(f"An error occurred: {e}")
+
+        elif action.lower() == "off":
+            try:
+                await ctx.channel.edit(slowmode_delay=0)
+                embed = discord.Embed(
+                    description=f"{Emojis.check} {ctx.author.mention}: Removed **Slowmode** in {ctx.channel.mention}",
+                    color=Colors.green
+                )
+                await ctx.send(embed=embed)
+            except discord.Forbidden:
+                await ctx.send("I do not have permission to edit slowmode in this channel.")
+            except discord.HTTPException as e:
+                await ctx.send(f"An error occurred: {e}")
+
+        else:
+            await ctx.send("Invalid action. Use `on` or `off`.")
+
+
+
+       
 
 async def setup(bot: DiscordBot):
     await bot.add_cog(Utility(bot))
