@@ -40,3 +40,14 @@ CREATE TABLE IF NOT EXISTS guild_prefixes (
     guild_id INTEGER PRIMARY KEY,
     prefix TEXT NOT NULL DEFAULT '!'
 );
+
+-- Table for snipe
+CREATE TABLE IF NOT EXISTS snipe (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id INTEGER,
+    channel_id INTEGER,
+    author_id INTEGER,
+    content TEXT,
+    attachment_url TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

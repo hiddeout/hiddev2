@@ -1,12 +1,9 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from dotenv import load_dotenv
-from discord import Status
 import logging
 import os
-import random
-import discord_ios
-import sys
+import datetime
 import aiosqlite
 from backend.classes import Colors, Emojis
 from database import DatabaseManager
@@ -24,9 +21,23 @@ intents.message_content = True
 intents.guilds = True
 
 class DiscordBot(commands.Bot):
-    def __init__(self):
+    def __init__(self, intents):
         super().__init__(command_prefix=self.dynamic_prefix, intents=intents, help_command=None)
         self.database = None
+        self.start_time = datetime.datetime.now(datetime.timezone.utc)  # Make start_time timezone-aware
+        self.uptime = None
+
+    async def on_ready(self):
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+        self.uptime = current_time - self.start_time
+        if self.uptime:
+            uptime_days = self.uptime.days if self.uptime.days is not None else 0
+            uptime_hours = self.uptime.seconds // 3600
+            uptime_minutes = (self.uptime.seconds % 3600) // 60
+            logging.info(f"Bot is online. Uptime: {uptime_days} days, {uptime_hours} hours, {uptime_minutes} minutes")
+        else:
+            logging.error("Uptime is None.")
+
 
     async def dynamic_prefix(self, bot, message):
         """Dynamically get the prefix for the guild from the database."""
@@ -59,10 +70,7 @@ class DiscordBot(commands.Bot):
     async def setup_hook(self):
         await self.init_db()
         await self.load_cogs()
-    """ 
 
-        self.status_task.start()
-    """
     async def load_cogs(self):
         cogs_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cogs")
         for file in os.listdir(cogs_dir):
@@ -73,16 +81,6 @@ class DiscordBot(commands.Bot):
                     logging.info(f"Loaded extension '{extension}'")
                 except Exception as e:
                     logging.error(f"Failed to load extension {extension}.", exc_info=True)
-
-    """     @tasks.loop(minutes=1)
-    async def status_task(self):
-        statuses = ["", ""]  # You can add custom statuses here if needed
-        await self.change_presence(status=Status.online)
-
-    @status_task.before_loop
-    async def before_status_task(self):
-        await self.wait_until_ready()
-    """
 
     async def on_message(self, message):
         if message.author.bot:
@@ -111,5 +109,5 @@ class DiscordBot(commands.Bot):
             embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {str(error)}", color=Colors.red)
             await context.send(embed=embed)
 
-bot = DiscordBot()
+bot = DiscordBot(intents=intents)
 bot.run(os.getenv("TOKEN"))

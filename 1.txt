@@ -1,0 +1,13 @@
+import discord
+from discord.ext import commands
+import asyncio
+import aiosqlite
+import os
+import datetime
+import re
+import logging
+from typing import Optional
+from discord import TextChannel
+from bot import DiscordBot
+from backend.classes import Colors, Emojis
+import aiohttp

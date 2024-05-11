@@ -65,14 +65,6 @@ class General(commands.Cog, name="general"):
 
         await context.send(embed=embed)
 
-
-
-
-    @commands.hybrid_command(name="prefix", description="bot prefix.")
-    async def botinfo(self, context: Context):
-        embed = discord.Embed(description="", color=0xBEBEFE)
-        embed.add_field(name="Prefix:", value=f"{self.bot.config['prefix']} for normal commands", inline=False)
-        await context.send(embed=embed)
 """
 
 
@@ -84,30 +76,6 @@ class General(commands.Cog, name="general"):
         embed.add_field(name="Member Count", value=context.guild.member_count)
         embed.add_field(name="Roles", value=", ".join(roles) if roles else "No roles", inline=False)
         await context.send(embed=embed)
-
-    """     @commands.hybrid_command(name="ping", description="Check if the bot is alive.")
-    async def ping(self, context: Context):
-        embed = discord.Embed(title="🏓 Pong!", description=f"The bot latency is {round(self.bot.latency * 1000)}ms.", color=0xBEBEFE)
-        await context.send(embed=embed)
-     """
-    """
-    @commands.hybrid_command(name="invite", description="Get the invite link of the bot.")
-    async def invite(self, context: Context):
-        embed = discord.Embed(description=f"Invite me by clicking [here]({self.bot.config['invite_link']}).", color=0xD75BF4)
-        try:
-            await context.author.send(embed=embed)
-            await context.send("I sent you a private message!")
-        except discord.Forbidden:
-            await context.send(embed=embed)
-
-    @commands.hybrid_command(name="server", description="Get the invite link of the discord server of the bot for support.")
-    async def server(self, context: Context):
-        embed = discord.Embed(description="Join the support server for the bot by clicking [here](https://discord.gg/K5cCRgYS).", color=0xD75BF4)
-        try:
-            await context.author.send(embed=embed)
-            await context.send("I sent you a private message!")
-        except discord.Forbidden:
-            await context.send(embed=embed)
-        """
+        
 async def setup(bot):
     await bot.add_cog(General(bot))
