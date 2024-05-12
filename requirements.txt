@@ -5,3 +5,5 @@ discord_ios==1.1.1
 python-dotenv==1.0.1
 pytz==2024.1
 datetime
+starlight=git+https://github.com/InterStella0/starlight-dpy
+
