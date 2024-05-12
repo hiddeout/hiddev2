@@ -109,6 +109,6 @@ class DiscordBot(commands.Bot):
             logging.error("Unhandled command error: %s", str(error), exc_info=True)
             embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {str(error)}", color=Colors.red)
             await context.send(embed=embed)
-
+            
 bot = DiscordBot(intents=intents)
 bot.run(os.getenv("TOKEN"))

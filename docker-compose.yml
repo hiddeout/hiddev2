@@ -1,0 +1,10 @@
+version: '3'
+services:
+  bot:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "80:80"
+    environment:
+      - TOKEN=MTIzODIwMzY4ODc0MTUwNzE4Mw.Gw488i.NZccAUbGmYaEZWfLUeAHrrJNw9LfDy7jxuOeq4
