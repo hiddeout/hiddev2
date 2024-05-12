@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
-import aiosqlite
 import datetime
-import humanize
+import pytz
+from typing import Union
 from backend.classes import Colors, Emojis
-from discord.utils import utcnow
+
 class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -89,74 +89,80 @@ class Utility(commands.Cog):
         
         # Reset the cooldown
 
-
-
-
-
-    
-        #  utility commands make one by one and test them
-    
-    
-    @commands.command(name="userinfo", description="Displays information about a user.")
-    async def userinfo(self, ctx, user: discord.Member = None):
+    @commands.command(name="userinfo", aliases=["ui"], description="Displays information about a user.")
+    async def userinfo(self, ctx, user: Union[discord.Member, discord.User] = None):
         """Displays information about a user."""
         user = user or ctx.author
         
-        # Format account creation date and join date
-        account_created = user.created_at.strftime("%m/%d/%Y, %I:%M %p")
-        account_created_ago = humanize.naturaltime(utcnow() - user.created_at)
-        joined_at = user.joined_at.strftime("%m/%d/%Y, %I:%M %p")
-        joined_at_ago = humanize.naturaltime(utcnow() - user.joined_at)
+        def format_time_ago(past_time):
+            time_diff = datetime.datetime.now(pytz.utc) - past_time
         
-        # Get roles sorted by position
-        roles = sorted(user.roles, key=lambda r: r.position, reverse=True)
-        roles_str = ", ".join([role.mention for role in roles if role != ctx.guild.default_role])
+            if time_diff.days >= 365:
+                years = time_diff.days // 365
+                return f"{years} {'year' if years == 1 else 'years'} ago"
+            elif time_diff.days >= 1:
+                return f"{time_diff.days} {'day' if time_diff.days == 1 else 'days'} ago"
+            elif time_diff.seconds >= 3600:
+                hours = time_diff.seconds // 3600
+                return f"{hours} {'hour' if hours == 1 else 'hours'} ago"
+            elif time_diff.seconds >= 60:
+                minutes = time_diff.seconds // 60
+                return f"{minutes} {'minute' if minutes == 1 else 'minutes'} ago"
+            else:
+                return "Just now"
         
         embed = discord.Embed(title=f"{user.name} ({user.id})", color=Colors.default)
         
         # Set thumbnail if user has a custom avatar
-        if user.avatar:
+        if isinstance(user, discord.User) and user.avatar:
+            embed.set_thumbnail(url=user.avatar.url)
+        elif isinstance(user, discord.Member) and user.avatar:
             embed.set_thumbnail(url=user.avatar.url)
         
-        embed.add_field(name="**Dates**", value=f"**Created**: {account_created} ({account_created_ago})\n**Joined**: {joined_at} ({joined_at_ago})", inline=False)
-        embed.add_field(name=f"**Roles ({len(roles) - 1})**", value=roles_str, inline=False)
-        
-        # Add footer with join position and mutual servers
-        if user.bot:
-            footer_text = "This user is a bot."
+        if isinstance(user, discord.Member) and user.guild:
+            # Get joined date if user is in a guild
+            local_timezone = pytz.timezone('US/Eastern')  # Change 'US/Eastern' to your preferred timezone
+            joined_at = user.joined_at.strftime("%m/%d/%Y, %I:%M %p")
+            joined_at_local = user.joined_at.astimezone(local_timezone)
+            joined_at_ago = format_time_ago(joined_at_local)
+            embed.add_field(name="**Dates**", value=f"**Created**: {user.created_at.strftime('%m/%d/%Y, %I:%M %p')} (\u200b{format_time_ago(user.created_at)})\n**Joined**: {joined_at} (\u200b{joined_at_ago})", inline=False)
+            
+            # Get roles sorted by position if user is in a guild
+            roles = sorted(user.roles, key=lambda r: r.position, reverse=True)
+            roles_str = ", ".join([role.mention for role in roles if role != ctx.guild.default_role])
+            if roles_str:
+                embed.add_field(name=f"**Roles ({len(roles) - 1})**", value=roles_str, inline=False)
         else:
-            try:
-                join_position = sorted(ctx.guild.members, key=lambda m: m.joined_at).index(user) + 1
-            except ValueError:
-                join_position = "N/A"
-            mutual_servers = sum(1 for guild in self.bot.guilds if user in guild.members)
-            footer_text = f"Join position: {join_position} ∙ Mutual servers: {mutual_servers}"
-        
-        embed.set_footer(text=footer_text)
-
-
-    @commands.command(name="guildbanner", description="Displays the banner of the guild.")
-    async def guildbanner(self, ctx):
-        """Displays the banner of the guild."""
-        banner_url = ctx.guild.banner_url
-        if banner_url:
-            embed = discord.Embed(title=f"Banner of {ctx.guild.name}", color=discord.Color.blurple())
-            embed.set_image(url=banner_url)
-            await ctx.send(embed=embed)
+            # Format account creation date
+            account_created = user.created_at.strftime("%m/%d/%Y, %I:%M %p")
+            
+            # Convert UTC time to local time
+            local_timezone = pytz.timezone('US/Eastern')  # Change 'US/Eastern' to your preferred timezone
+            account_created_local = user.created_at.astimezone(local_timezone)
+            
+            # Calculate time since account creation
+            account_created_ago = format_time_ago(account_created_local)
+            
+            # Create a separate embed for users not in the server
+            embed = discord.Embed(title=f"{user.name} ({user.id})", color=Colors.default)
+            embed.add_field(name="**Dates**", value=f"**Created**: {account_created} (\u200b{account_created_ago})", inline=False)
+            
+            # Set thumbnail if user not in server
+            if user.avatar:
+                embed.set_thumbnail(url=user.avatar.url)
+    
+        if isinstance(user, discord.Member) and user.guild:
+            embed.set_footer(text="User in this server.")
         else:
-            await ctx.send("This guild does not have a banner.")
-
-
-        
+            embed.set_footer(text="User not in this server.")
+    
         await ctx.send(embed=embed)
-    
-
-
 
     
-
-
-
+        
+    
+        
+    
 class MyHelp(commands.MinimalHelpCommand):
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Help", color=Colors.default)

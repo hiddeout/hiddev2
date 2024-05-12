@@ -70,3 +70,10 @@ CREATE TABLE IF NOT EXISTS forced_nicknames (
     nickname TEXT,
     PRIMARY KEY (guild_id, member_id)
 );
+
+-- Table for antinuke settings
+CREATE TABLE IF NOT EXISTS antinuke (
+    guild_id INTEGER PRIMARY KEY,
+    module TEXT,
+    punishment TEXT
+);

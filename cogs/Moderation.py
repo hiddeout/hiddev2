@@ -314,37 +314,111 @@ class Moderation(commands.Cog):
             embed = discord.Embed(description=description, color=Colors.red)
             await ctx.send(embed=embed)
 
-    @commands.command(name="role", help="Assign or remove a role from a member", usage="[member] [role]", description="Moderation")
-    @commands.cooldown(1, 3, commands.BucketType.user) 
-    @commands.has_permissions(manage_roles=True)
-    async def role(self, ctx, user: discord.Member = None, *, role: discord.Role = None):
-        """Assign or remove a role from a member."""
-        if user is None or role is None:
-            embed = discord.Embed(
-                title="Command: role",
-                description="Assigns or removes the mentioned role from the user.\nSyntax & Example: ```Syntax: ,role (user) (role)\nExample: ,role omtfiji Admin```",
-                color=Colors.default
-            )
-            await ctx.send(embed=embed)
-            return
-        
-        if role.position >= ctx.author.top_role.position and ctx.author.id != ctx.guild.owner.id: 
-            description = f"{Emojis.warning} {ctx.author.mention}: that role is above your top role"
-            embed = discord.Embed(description=description, color=Colors.yellow)
-            return await ctx.send(embed=embed)
 
-        async with ctx.typing():
-            if role in user.roles:
-                await user.remove_roles(role)
-                description = f"{Emojis.remove} {ctx.author.mention}: Removed {role.mention} from {user.mention}"
-                embed = discord.Embed(description=description, color=Colors.green)
-                await ctx.send(embed=embed)
-            else:
-                await user.add_roles(role)
-                description = f"{Emojis.add} {ctx.author.mention}: Added {role.mention} to {user.mention}"
-                embed = discord.Embed(description=description, color=Colors.green)
-                await ctx.send(embed=embed)
     
+
+
+
+        """ 
+        -- role commands --
+
+     """
+    
+
+    @commands.command(name="rolehoist", description="Changes the display of a role.")
+    async def role_hoist(self, ctx, role: discord.Role):
+        """Changes the display of a role."""
+        try:
+            await role.edit(hoist=not role.hoist)
+            embed = discord.Embed(description=f"{Emojis.check} The hoist status of the role {role.name} has been toggled.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="roledelete", description="Deletes a role.")
+    async def role_delete(self, ctx, role: discord.Role):
+        """Deletes a role."""
+        try:
+            await role.delete()
+            embed = discord.Embed(description=f"{Emojis.check} The role {role.name} has been deleted.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="rolecolor", description="Changes the color of a role.")
+    async def role_color(self, ctx, role: discord.Role, color: discord.Color):
+        """Changes the color of a role."""
+        try:
+            await role.edit(color=color)
+            embed = discord.Embed(description=f"{Emojis.check} The color of the role {role.name} has been changed to {color}.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="rolementionable", description="Changes the mentionability of a role.")
+    async def role_mentionable(self, ctx, role: discord.Role):
+        """Changes the mentionability of a role."""
+        try:
+            await role.edit(mentionable=not role.mentionable)
+            embed = discord.Embed(description=f"{Emojis.check} The mentionability of the role {role.name} has been toggled.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="rolerename", description="Renames a role.")
+    async def role_rename(self, ctx, role: discord.Role, new_name: str):
+        """Renames a role."""
+        try:
+            await role.edit(name=new_name)
+            embed = discord.Embed(description=f"{Emojis.check} The role has been renamed to {new_name}.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="rolecreate", description="Creates a role.")
+    async def role_create(self, ctx, *role_name):
+        """Creates a role."""
+        role_name = " ".join(role_name)
+        try:
+            role = await ctx.guild.create_role(name=role_name)
+            embed = discord.Embed(description=f"{Emojis.check} The role {role.name} has been created.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="roleicon", description="Changes the icon of a role.")
+    async def role_icon(self, ctx, role: discord.Role, icon_url: str):
+        """Changes the icon of a role."""
+        try:
+            await role.edit(icon=icon_url)
+            embed = discord.Embed(description=f"{Emojis.check} The icon of the role {role.name} has been changed.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    @commands.command(name="roleposition", description="Changes the position of a role.")
+    async def role_position(self, ctx, role: discord.Role, position: int):
+        """Changes the position of a role."""
+        try:
+            await role.edit(position=position)
+            embed = discord.Embed(description=f"{Emojis.check} The position of the role {role.name} has been changed to {position}.", color=Colors.green)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {e}", color=Colors.red)
+            await ctx.send(embed=embed)
+
+    async def send_error_embed(self, ctx, error_message):
+        """Send an error embed with the provided message."""
+        embed = discord.Embed(description=f"{Emojis.wrong} {error_message}", color=Colors.red)
+        await ctx.send(embed=embed)
+
 
         """ 
         -- mute commands --
@@ -664,6 +738,19 @@ class Moderation(commands.Cog):
             await self.send_error_embed(ctx, "I don't have permission to delete messages.")
         except discord.HTTPException as e:
             await self.send_error_embed(ctx, f"An error occurred: {e}")
+
+
+
+
+        """ 
+          --
+
+     """
+
+
+
+
+
 
 
     
