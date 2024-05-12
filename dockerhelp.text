@@ -1,0 +1,16 @@
+docker build -t my-bot .
+
+docker run -v /path/to/local/folder:/app --name my-bot-container my-bot
+
+
+version: "3.9"
+services:
+  my-bot:
+    build: .
+    volumes:
+      - /path/to/local/folder:/app
+    restart: always
+
+
+
+docker-compose up -d

@@ -1,20 +1,19 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.9
 
-# Set the working directory to /app
+# Set working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy requirements file
+COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN pip install -r requirements.txt
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Copy bot files
+COPY . .
 
-# Define environment variable
-ENV NAME World
+# Expose the port the bot listens on
+EXPOSE 8080
 
-# Run bot.py when the container launches
+# Command to run the bot
 CMD ["python", "main.py"]

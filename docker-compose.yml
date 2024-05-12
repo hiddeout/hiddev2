@@ -1,10 +1,10 @@
-version: '3'
+version: "3.9"
 services:
-  bot:
+  my-bot:
     build: .
     volumes:
-      - .:/app
-    ports:
-      - "80:80"
+      - D:\Reps\hiddeout-bot:/app
+    restart: always
+
     environment:
       - TOKEN=MTIzODIwMzY4ODc0MTUwNzE4Mw.Gw488i.NZccAUbGmYaEZWfLUeAHrrJNw9LfDy7jxuOeq4
