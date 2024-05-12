@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import datetime
+import aiosqlite
 from backend.classes import Colors, Emojis
 
 # Function to format timedelta into a human-readable string

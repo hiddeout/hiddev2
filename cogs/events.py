@@ -43,27 +43,6 @@ def blacklist():
 
     # Include other event handlers and methods as necessary
 
-async def commandhelp(self, ctx, cmd):
-    prefixes = []
-    for l in set(p for p in await self.bot.command_prefix(self.bot, ctx.message)):
-      prefixes.append(l)
-    try:
-       command = self.bot.get_command(cmd)
-       if command.usage is None:
-        usage = ""
-       else:
-        usage = command.usage 
-
-       embed = discord.Embed(color=Colors.default, title=command, description=command.help)
-       embed.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar.url)
-       embed.add_field(name="category", value=command.description)
-       if command.brief:
-        embed.add_field(name="commands", value=command.brief, inline=False)
-       embed.add_field(name="usage", value=f"```{prefixes[0]}{cmd} {usage}```", inline=False)
-       embed.add_field(name="aliases", value=', '.join(map(str, command.aliases)) or "none")
-       await ctx.reply(embed=embed, mention_author=False)
-    except:
-       await ctx.reply(f"> command `{cmd}` not found", mention_author=False)
 
 async def setup(bot):
     await bot.add_cog(Events(bot))
