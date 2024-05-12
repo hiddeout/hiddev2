@@ -700,8 +700,8 @@ class Moderation(commands.Cog):
         """Deletes the specified amount of messages from the current channel."""
         if limit is None:
             await ctx.send(embed=discord.Embed(title="Command: purge",
-                                               description="Deletes the specified amount of messages from the current channel\nSyntax & Example: ```Syntax: ,purge (amount)\nExample: ,purge omtfiji 30```",
-                                               color=discord.Color.default()))
+                                               description="Deletes the specified amount of messages from the current channel\n```Syntax: ,purge (amount)\nExample: ,purge omtfiji 30```",
+                                               color=Colors.default))
             return
 
         if target is None:
