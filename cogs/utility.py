@@ -5,6 +5,16 @@ import pytz
 from typing import Union
 from backend.classes import Colors, Emojis
 
+
+def format_timedelta(td: datetime.timedelta) -> str:
+    seconds = td.total_seconds()
+    days, remainder = divmod(seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    
+    uptime_str = f"{int(days)} days, {int(hours)} hours, {int(minutes)} minutes and {seconds:.1f} seconds"
+    return uptime_str
+
 class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -157,16 +167,14 @@ class Utility(commands.Cog):
             embed.set_footer(text="User not in this server.")
     
         await ctx.send(embed=embed)
-
-    
-        
-    
-        
     
 class MyHelp(commands.MinimalHelpCommand):
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Help", color=Colors.default)
         for cog, commands in mapping.items():
+            if cog and cog.qualified_name == "Owner":  # Skip the Owner cog
+                continue
+            
             filtered = await self.filter_commands(commands, sort=True)
             if filtered:  # Check if filtered is not None
                 command_signatures = [self.get_command_signature(c) for c in filtered]
@@ -176,7 +184,6 @@ class MyHelp(commands.MinimalHelpCommand):
                     
         channel = self.get_destination()
         await channel.send(embed=embed)
-
 
 async def setup(bot: commands.Bot):
     bot.help_command = MyHelp()

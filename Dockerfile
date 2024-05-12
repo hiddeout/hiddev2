@@ -12,7 +12,7 @@ RUN pip install -r requirements.txt
 # Copy bot files
 COPY . .
 
-# Expose the port the bot listens on
+# Expose the port the bot listens on (if necessary)
 EXPOSE 8080
 
 # Command to run the bot

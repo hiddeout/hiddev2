@@ -1,6 +1,6 @@
 docker build -t my-bot .
 
-docker run -v /path/to/local/folder:/app --name my-bot-container my-bot
+docker run -v /path/to/local/folder:/app --name my-bot-container hiddeoutbot
 
 
 version: "3.9"
@@ -14,3 +14,10 @@ services:
 
 
 docker-compose up -d
+
+
+
+docker build -t hiddeoutbot .
+
+
+docker build -t my-bot-image .

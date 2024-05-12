@@ -5,6 +5,5 @@ services:
     volumes:
       - D:\Reps\hiddeout-bot:/app
     restart: always
-
     environment:
       - TOKEN=MTIzODIwMzY4ODc0MTUwNzE4Mw.Gw488i.NZccAUbGmYaEZWfLUeAHrrJNw9LfDy7jxuOeq4
