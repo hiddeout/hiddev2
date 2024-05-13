@@ -3,7 +3,7 @@ services:
   my-bot:
     build: .
     volumes:
-      - D:\Reps\hiddeout-bot:/app
+      - D:\Reps\hiddeout-bot:/app   # Bind mount local directory to container directory
     restart: always
     environment:
       - TOKEN=MTIzODIwMzY4ODc0MTUwNzE4Mw.Gw488i.NZccAUbGmYaEZWfLUeAHrrJNw9LfDy7jxuOeq4

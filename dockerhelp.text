@@ -21,3 +21,6 @@ docker build -t hiddeoutbot .
 
 
 docker build -t my-bot-image .
+
+
+docker-compose build

@@ -16,3 +16,30 @@ async def command_name(self, ctx, target: discord.Member, *, reason: str = "No r
     except Exception as e:
         logging.error(f"Error performing action: {e}")
         await ctx.send(embed=discord.Embed(description="An unexpected error occurred.", color=discord.Color.red()))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    async def create_embed(self, ctx, title, description, color):
+    embed = discord.Embed(title=title, description=description, color=color)
+    await ctx.send(embed=embed)
+
