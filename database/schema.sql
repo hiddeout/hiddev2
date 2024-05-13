@@ -36,10 +36,11 @@ CREATE TABLE IF NOT EXISTS afk (
 );
 
 -- Table for guild prefixes
-CREATE TABLE IF NOT EXISTS guild_prefixes (
-    guild_id INTEGER PRIMARY KEY,
-    prefix TEXT NOT NULL DEFAULT '!'
-);
+
+   CREATE TABLE IF NOT EXISTS guild_prefixes (
+       guild_id TEXT PRIMARY KEY,
+       prefix TEXT NOT NULL
+   );
 
 -- Table for snipe
 CREATE TABLE IF NOT EXISTS snipe (

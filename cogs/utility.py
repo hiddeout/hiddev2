@@ -101,15 +101,16 @@ class Utility(commands.Cog):
         # Reset the cooldown
 
 
+
+
+
     @commands.group(name="prefix", invoke_without_command=True, description="Configure the server prefix for hidde.", usage="[set/delete]")
     async def prefix_group(self, ctx):
         """Configure the server prefix for hidde."""
-        # Generate the list of aliases for the prefix_group command
-        aliases_prefix_group = ', '.join(alias for alias in self.prefix_group.aliases)
-        
+        aliases = ', '.join(self.prefix_group.aliases)
         embed = discord.Embed(
             title="Command: prefix",
-            description=f"Configure the server prefix for hidde.\nSyntax & Example: ```Syntax: !prefix set (prefix)\nExample:!prefix delete\nAliases: {aliases_prefix_group}```",
+            description=f"Configure the server prefix for hidde.\nSyntax & Example: ```Syntax: !prefix set <prefix>\nExample: !prefix delete\nAliases: {aliases}```",
             color=Colors.default
         )
         await ctx.send(embed=embed)
@@ -117,36 +118,30 @@ class Utility(commands.Cog):
     @prefix_group.command(name="set", description="Set a custom command prefix for this server.", usage="[prefix]", aliases=["s"])
     @commands.has_permissions(manage_guild=True)
     async def set_prefix(self, ctx, *, prefix: str = None):
-        """Set a custom command prefix for this server."""
-        if prefix is None:
-            embed = discord.Embed(
-                description=f"{Emojis.warning} {ctx.author.mention}: Please provide a valid **prefix**.",
-                color=Colors.yellow
-            )
-            await ctx.send(embed=embed)
+        print(f"Setting prefix to: {prefix}")  # Debug print
+        if not prefix:
+            await ctx.send("Please provide a valid prefix.")
             return
-    
+ 
         try:
-            await self.bot.db.execute("INSERT OR REPLACE INTO guild_prefixes (guild_id, prefix) VALUES (?, ?)", (str(ctx.guild.id), prefix))
+            await self.bot.db.execute("INSERT OR REPLACE INTO guild_prefixes (guild_id, prefix) VALUES (?, ?)", (ctx.guild.id, prefix))
             await self.bot.db.commit()
-            embed = discord.Embed(description=f"{Emojis.check} Prefix set to: `{prefix}`", color=Colors.green)
-            await ctx.send(embed=embed)
+            await ctx.send(f"Prefix set to: `{prefix}`")
         except Exception as e:
-            print(f"Error setting prefix: {e}")  # Log any errors
-            embed = discord.Embed(description=f"{Emojis.wrong} Failed to set prefix due to an error.", color=Colors.red)
-            await ctx.send(embed=embed)
-    
+            print(f"Error setting prefix: {e}")
+            await ctx.send(f"Failed to set prefix due to an error: {str(e)}")
+  
     @prefix_group.command(name="delete", description="Delete the custom command prefix for this server.", aliases=["remove", "del", "d"])
     @commands.has_permissions(manage_guild=True)
     async def delete_prefix(self, ctx):
         """Delete the custom command prefix for this server."""
         try:
-            await self.bot.db.execute("DELETE FROM guild_prefixes WHERE guild_id = ?", (str(ctx.guild.id),))
+            await self.bot.db.execute("DELETE FROM guild_prefixes WHERE guild_id = ?", (ctx.guild.id,))
             await self.bot.db.commit()
             embed = discord.Embed(description=f"{Emojis.check} Prefix deleted. Default prefix is restored.", color=Colors.green)
             await ctx.send(embed=embed)
         except Exception as e:
-            print(f"Error deleting prefix: {e}")  # Log any errors
+            print(f"Error deleting prefix: {e}")
             embed = discord.Embed(description=f"{Emojis.wrong} Failed to delete prefix due to an error.", color=Colors.red)
             await ctx.send(embed=embed)
 
@@ -159,10 +154,10 @@ class Utility(commands.Cog):
 
     async def get_prefix(self, guild):
         """Fetch the current prefix for the guild."""
-        async with self.bot.db.execute("SELECT prefix FROM guild_prefixes WHERE guild_id = ?", (str(guild.id),)) as cursor:
+        async with self.bot.db.execute("SELECT prefix FROM guild_prefixes WHERE guild_id = ?", (guild.id,)) as cursor:
             prefix = await cursor.fetchone()
-            prefix_value = prefix[0] if prefix else "!"  # Default prefix if not set
-            return prefix_value
+            return prefix[0] if prefix else "!"  # Default prefix if not set
+
 
 
 class InvalidPrefixError(commands.CommandError):

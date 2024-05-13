@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 import datetime
 import re
+import aiosqlite
 import logging
 from backend.classes import Colors, Emojis
 
@@ -328,6 +329,9 @@ class Moderation(commands.Cog):
                 description=f"{Emojis.wrong} An error occurred: {str(e)}"
             )
             await ctx.send(embed=embed)
+
+
+
 
 
 
