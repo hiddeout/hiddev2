@@ -1,0 +1,18 @@
+@commands.command(name="command_name")
+@commands.has_permissions(required_permission=True)
+async def command_name(self, ctx, target: discord.Member, *, reason: str = "No reason provided"):
+    """Description of what the command does."""
+    if ctx.author == target:
+        return await ctx.send("You cannot perform this action on yourself.")
+
+    if target.top_role >= ctx.author.top_role and ctx.author != ctx.guild.owner:
+        return await ctx.send("You cannot perform this action on this user due to role hierarchy.")
+
+    try:
+        # Perform the action
+        await ctx.send(embed=discord.Embed(description=f"Action performed on {target.display_name}. Reason: {reason}", color=discord.Color.green()))
+    except discord.Forbidden:
+        await ctx.send(embed=discord.Embed(description="I do not have permission to perform this action.", color=discord.Color.red()))
+    except Exception as e:
+        logging.error(f"Error performing action: {e}")
+        await ctx.send(embed=discord.Embed(description="An unexpected error occurred.", color=discord.Color.red()))
