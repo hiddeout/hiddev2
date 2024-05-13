@@ -110,7 +110,7 @@ class Utility(commands.Cog):
         aliases = ', '.join(self.prefix_group.aliases)
         embed = discord.Embed(
             title="Command: prefix",
-            description=f"Configure the server prefix for hidde.\nSyntax & Example: ```Syntax: !prefix set <prefix>\nExample: !prefix delete\nAliases: {aliases}```",
+            description=f"Configure the server prefix for hidde.\nSyntax & Example: ```Syntax: !prefix set (prefix)\nExample: !prefix delete```",
             color=Colors.default
         )
         await ctx.send(embed=embed)

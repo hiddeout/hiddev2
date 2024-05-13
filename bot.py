@@ -7,7 +7,6 @@ import datetime
 import discord_ios
 import aiosqlite
 from backend.classes import Colors, Emojis
-from database import DatabaseManager
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(name)s: %(message)s')
@@ -21,10 +20,11 @@ intents.messages = True
 intents.message_content = True
 intents.guilds = True
 intents.members = True
+
 class DiscordBot(commands.Bot):
     def __init__(self, intents):
         super().__init__(command_prefix=self.dynamic_prefix, intents=intents, help_command=None)
-        self.database = None
+        self.db = None  # Directly use db instead of self.database for clarity
         self.start_time = datetime.datetime.now(datetime.timezone.utc)  # Make start_time timezone-aware
         self.uptime = None
 
@@ -39,7 +39,6 @@ class DiscordBot(commands.Bot):
         else:
             logging.error("Uptime is None.")
 
-
     async def dynamic_prefix(self, bot, message):
         """Dynamically get the prefix for the guild from the database."""
         if not message.guild:
@@ -51,7 +50,7 @@ class DiscordBot(commands.Bot):
         """Utility function to fetch the current guild prefix."""
         default_prefix = "!"  # Default to '!' or retrieve from a config/environment variable
         try:
-            async with self.database.connection.execute("SELECT prefix FROM guild_prefixes WHERE guild_id = ?", (guild_id,)) as cursor:
+            async with self.db.execute("SELECT prefix FROM guild_prefixes WHERE guild_id = ?", (guild_id,)) as cursor:
                 result = await cursor.fetchone()
                 return result[0] if result else default_prefix
         except Exception as e:
@@ -59,14 +58,14 @@ class DiscordBot(commands.Bot):
             return default_prefix
 
     async def init_db(self):
-        self.database = DatabaseManager(connection=await aiosqlite.connect('database/database.db'))
+        self.db = await aiosqlite.connect('database/database.db')
         schema_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "database", "schema.sql")
         if os.path.exists(schema_path):
             with open(schema_path, 'r') as schema_file:
                 schema_sql = schema_file.read()
             logging.info("Executing schema SQL script.")
-            await self.database.connection.executescript(schema_sql)
-            await self.database.connection.commit()
+            await self.db.executescript(schema_sql)
+            await self.db.commit()
 
     async def setup_hook(self):
         await self.init_db()
@@ -109,6 +108,6 @@ class DiscordBot(commands.Bot):
             logging.error("Unhandled command error: %s", str(error), exc_info=True)
             embed = discord.Embed(description=f"{Emojis.wrong} An error occurred: {str(error)}", color=Colors.red)
             await context.send(embed=embed)
-            
+
 bot = DiscordBot(intents=intents)
 bot.run(os.getenv("TOKEN"))

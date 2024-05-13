@@ -5,6 +5,8 @@ import datetime
 import re
 import aiosqlite
 import logging
+import json
+from discord.ui import Button, View
 from backend.classes import Colors, Emojis
 
 # Setup logging
@@ -18,6 +20,12 @@ class Moderation(commands.Cog):
         self.bot = bot
         self.guild_mute_roles = {}  # This will store guild_id: mute_role_id pairs
 
+    async def _execute_query(self, query, params=None):
+        async with self.bot.db.execute(query, params) as cursor:
+            return await cursor.fetchall()
+
+    async def _execute_commit(self):
+        await self.bot.db.commit()
 
     async def create_embed(self, ctx, title, description, color):
         embed = discord.Embed(title=title, description=description, color=color)
@@ -154,29 +162,24 @@ class Moderation(commands.Cog):
         mute_embed = discord.Embed(description=f"{Emojis.check} {member.mention} has been muted for {duration_display}. Reason: {reason}", color=self.get_color('green'))
         await ctx.send(embed=mute_embed)
         
-        @commands.command(name="unmute")
-        @commands.has_permissions(manage_roles=True)
-        async def unmute(self, ctx, member: discord.Member = None):
-            """Unmute a member in the server."""
-            if member is None:
-                await self.create_embed(ctx, "Command: unmute", "Unmutes the mentioned user in the server.\n```Syntax: ,unmute (user)\nExample: ,unmute omtfiji```", self.get_color('default'))
-                return
-        
-            mute_role_id = self.guild_mute_roles.get(ctx.guild.id)
-            mute_role = ctx.guild.get_role(mute_role_id) if mute_role_id else discord.utils.get(ctx.guild.roles, name="Muted")
-        
-            if mute_role and mute_role in member.roles:
-                await member.remove_roles(mute_role)
-                embed = discord.Embed(description=f"{Emojis.check} {member.display_name} has been unmuted.", color=self.get_color('green'))
-                await ctx.send(embed=embed)
-            else:
-                embed = discord.Embed(description=f"{Emojis.wrong} {member.display_name} is not muted.", color=self.get_color('red'))
-                await ctx.send(embed=embed)
     @commands.command(name="unmute")
     @commands.has_permissions(manage_roles=True)
     async def unmute(self, ctx, member: discord.Member = None):
         """Unmute a member in the server."""
-
+        if member is None:
+            await self.create_embed(ctx, "Command: unmute", "Unmutes the mentioned user in the server.\n```Syntax: ,unmute (user)\nExample: ,unmute omtfiji```", self.get_color('default'))
+            return
+    
+        mute_role_id = self.guild_mute_roles.get(ctx.guild.id)
+        mute_role = ctx.guild.get_role(mute_role_id) if mute_role_id else discord.utils.get(ctx.guild.roles, name="Muted")
+    
+        if mute_role and mute_role in member.roles:
+            await member.remove_roles(mute_role)
+            embed = discord.Embed(description=f"{Emojis.check} {member.display_name} has been unmuted.", color=self.get_color('green'))
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(description=f"{Emojis.wrong} {member.display_name} is not muted.", color=self.get_color('red'))
+            await ctx.send(embed=embed)
 
 
     @commands.command(name="kick")
@@ -331,6 +334,182 @@ class Moderation(commands.Cog):
             await ctx.send(embed=embed)
 
 
+
+
+    @commands.command(
+        name="jail", help="Jail a member", usage="[member]", description="Moderation"
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    # Add any additional decorators as needed
+    async def jail(self, ctx: commands.Context, member: discord.Member = None, *, reason=None):
+        if not ctx.author.guild_permissions.manage_channels:
+            await ctx.send("You do not have permission to manage channels.")
+            return
+
+        if member is None:
+            await ctx.send("Please specify a member to jail.")
+            return
+
+        if member.top_role >= ctx.author.top_role and ctx.author.id != ctx.guild.owner.id:
+            embed = discord.Embed(
+                color=Colors.yellow,
+                description=f"{Emojis.warning} {ctx.author.mention}: you can't jail {member.mention}",
+            )
+            await ctx.send(embed=embed)
+            return
+
+        check = await self._execute_query(
+            "SELECT * FROM setme WHERE guild_id = ?", (ctx.guild.id,)
+        )
+        if not check:
+            em = discord.Embed(
+                color=Colors.yellow,
+                description=f"{Emojis.warning} {ctx.author.mention} use `setme` command before using jail",
+            )
+            await ctx.send(embed=em)
+            return
+
+        check = await self._execute_query(
+            "SELECT * FROM jail WHERE guild_id = ? AND user_id = ?", (ctx.guild.id, member.id)
+        )
+        if check:
+            em = discord.Embed(
+                color=Colors.yellow,
+                description=f"{Emojis.warning} {ctx.author.mention}: {member.mention} is jailed already",
+            )
+            await ctx.send(embed=em)
+            return
+
+        if reason is None:
+            reason = "no reason provided"
+
+        roles = [role.id for role in member.roles if role.managed == False and role.is_default() == False]
+
+        sql_as_text = json.dumps(roles)
+        await self._execute_query(
+            "INSERT INTO jail (guild_id, user_id, roles) VALUES (?, ?, ?)", (ctx.guild.id, member.id, sql_as_text)
+        )
+        await self._execute_commit()
+
+        for role in member.roles:
+            if not role.managed:
+                try:
+                    await member.remove_roles(role)
+                except Exception as e:
+                    logging.error(f"Failed to remove role {role.name}: {str(e)}")
+
+        role_id = check[1]
+        jail_role = ctx.guild.get_role(role_id)
+        if jail_role:
+            try:
+                await member.add_roles(jail_role, reason=f"jailed by {ctx.author} - {reason}")
+                success = discord.Embed(
+                    color=discord.Color.blue(),
+                    description=f"{Emojis.check} {member.mention} got jailed - {reason}",
+                )
+                await ctx.send(embed=success)
+            except Exception as e:
+                embed = discord.Embed(
+                    color=discord.Color.blue(),
+                    description=f"{ctx.author.mention} there was a problem jailing {member.mention}: {str(e)}",
+                )
+                await ctx.send(embed=embed)
+        else:
+            logging.error("Jail role not found")
+            await ctx.send("Jail role not found. Please check the configuration.")
+
+
+    @commands.command(help="set the jail module", description="config")
+    @commands.cooldown(1, 6, commands.BucketType.guild)
+    async def setme(self, ctx: commands.Context):
+        if not ctx.author.guild_permissions.administrator:
+            await ctx.send("You do not have administrator permissions.")
+            return
+    
+        await ctx.message.channel.typing()
+        async with ctx.bot.db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM setme WHERE guild_id = ?", (ctx.guild.id,))
+            res = await cursor.fetchone()
+            if res is not None:
+                return await ctx.send(embed=discord.Embed(color=Colors.yellow, description=f"{Emojis.warning} {ctx.author.mention}: Jail is already set"))
+            
+            role = await ctx.guild.create_role(name="jail", color=0xff0000)
+            for channel in ctx.guild.channels:
+                await channel.set_permissions(role, view_channel=False)
+    
+            overwrite = {role: discord.PermissionOverwrite(view_channel=True), ctx.guild.default_role: discord.PermissionOverwrite(view_channel=False)}
+            jail = await ctx.guild.create_text_channel(name="jail", category=None, overwrites=overwrite)
+            await cursor.execute("INSERT INTO setme (channel_id, role_id, guild_id) VALUES (?, ?, ?)", (jail.id, role.id, ctx.guild.id))
+            await ctx.bot.db.commit()
+            embed = discord.Embed(color=Colors.green, description=f"{Emojis.check} {ctx.author.mention} jail set")
+            await ctx.send(embed=embed)
+    
+    @commands.command()
+    @commands.cooldown(1, 6, commands.BucketType.guild)
+    async def unsetme(self, ctx: commands.Context):
+        if not ctx.author.guild_permissions.administrator:
+            await ctx.send("You do not have administrator permissions.")
+            return
+    
+        async with ctx.bot.db.cursor() as cursor:
+            await cursor.execute("SELECT * FROM setme WHERE guild_id = ?", (ctx.guild.id,))
+            check = await cursor.fetchone()
+            if check is None:
+                em = discord.Embed(color=Colors.yellow, description=f"{Emojis.warning} {ctx.author.mention}: jail module is not set")
+                await ctx.send(embed=em)
+                return
+    
+            button1 = Button(label="yes", style=discord.ButtonStyle.green)
+            button2 = Button(label="no", style=discord.ButtonStyle.red)
+            embed = discord.Embed(color=Colors.default, description=f"{ctx.author.mention} are you sure you want to clear jail module?")
+    
+            async def button1_callback(interaction: discord.Interaction):
+                if interaction.user != ctx.author:
+                    emb = discord.Embed(color=Colors.red, description=f"{Emojis.wrong} {interaction.user.mention}: this is not your message")
+                    await interaction.response.send_message(embed=emb, ephemeral=True)
+                    return
+                async with ctx.bot.db.cursor() as cursor:
+                    await cursor.execute("SELECT * FROM setme WHERE guild_id = ?", (ctx.guild.id,))
+                    check = await cursor.fetchone()
+                    channelid = check[0]
+                    roleid = check[1]
+                    channel = ctx.guild.get_channel(channelid)
+                    role = ctx.guild.get_role(roleid)
+                    try:
+                        await role.delete()
+                    except:
+                        pass
+    
+                    try:
+                        await channel.delete()
+                    except:
+                        pass
+    
+                    try:
+                        await cursor.execute("DELETE FROM setme WHERE guild_id = ?", (ctx.guild.id,))
+                        await ctx.bot.db.commit()
+                        embed = discord.Embed(color=Colors.green, description=f"{ctx.author.mention}: jail module has been cleared")
+                        await interaction.response.edit_message(embed=embed, view=None)
+                    except:
+                        pass
+    
+            button1.callback = button1_callback
+    
+            async def button2_callback(interaction: discord.Interaction):
+                if interaction.user != ctx.author:
+                    emb = discord.Embed(color=Colors.red, description=f"{Emojis.wrong} {interaction.user.mention}: this is not your message")
+                    await interaction.response.send_message(embed=emb, ephemeral=True)
+                    return
+    
+                embed = discord.Embed(color=Colors.green, description=f"{Emojis.check} {ctx.author.mention}: you have changed your mind")
+                await interaction.response.edit_message(embed=embed, view=None)
+    
+            button2.callback = button2_callback
+    
+            view = View()
+            view.add_item(button1)
+            view.add_item(button2)
+            await ctx.send(embed=embed, view=view)
 
 
 

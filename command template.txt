@@ -43,3 +43,147 @@ async def command_name(self, ctx, target: discord.Member, *, reason: str = "No r
     embed = discord.Embed(title=title, description=description, color=color)
     await ctx.send(embed=embed)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import discord
+from discord.ext import commands
+import asyncio
+import datetime
+import re
+import aiosqlite
+import logging
+from backend.classes import Colors, Emojis
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+
+
+class Moderation(commands.Cog):
+    """Cog for moderation commands including jail system."""
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.guild_mute_roles = {}  # Existing code
+
+    # Existing methods...
+
+    async def _execute_query(self, query, params=None):
+        async with self.bot.db.execute(query, params or ()) as cursor:
+            return await cursor.fetchone()
+
+    async def _execute_commit(self, query, params=None):
+        async with self.bot.db.execute(query, params or ()):
+            await self.bot.db.commit()
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self._execute_commit(
+            "CREATE TABLE IF NOT EXISTS setme (channel_id INTEGER, role_id INTEGER, guild_id INTEGER)"
+        )
+        await self._execute_commit(
+            "CREATE TABLE IF NOT EXISTS jail (guild_id INTEGER, user_id INTEGER, roles TEXT)"
+        )
+
+    @commands.Cog.listener()
+    async def on_guild_channel_create(self, channel):
+        check = await self._execute_query(
+            f"SELECT * FROM setme WHERE guild_id = {channel.guild.id}"
+        )
+        if check:
+            role_id = check[1]
+            role = channel.guild.get_role(role_id)
+            await channel.set_permissions(
+                role, view_channel=False, reason="Overwriting permissions for jail role"
+            )
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        check = await self._execute_query(
+            f"SELECT * FROM jail WHERE guild_id = {member.guild.id} AND user_id = {member.id}"
+        )
+        if check:
+            setme_check = await self._execute_query(
+                f"SELECT * FROM setme WHERE guild_id = {member.guild.id}"
+            )
+            if setme_check:
+                role_id = setme_check[1]
+                role = member.guild.get_role(role_id)
+                try:
+                    await member.add_roles(role)
+                except:
+                    pass
+
+    @commands.command(name="setme", help="Set the jail module", description="Config")
+    @commands.has_permissions(administrator=True)
+    async def setme(self, ctx):
+        res = await self._execute_query(
+            f"SELECT * FROM setme WHERE guild_id = {ctx.guild.id}"
+        )
+        if res:
+            await ctx.send(f"{ctx.author.mention}: Jail is already set")
+            return
+
+        role = await ctx.guild.create_role(name="jail", color=discord.Color.red())
+        for channel in ctx.guild.channels:
+            await channel.set_permissions(role, view_channel=False)
+
+        overwrite = {
+            role: discord.PermissionOverwrite(view_channel=True),
+            ctx.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        }
+        jail = await ctx.guild.create_text_channel(name="jail", overwrites=overwrite)
+
+        await self._execute_commit(
+            f"INSERT INTO setme VALUES ({jail.id}, {role.id}, {ctx.guild.id})"
+        )
+
+        await ctx.send(f"{ctx.author.mention} jail set")
+
+    # Additional commands like unsetme, jail, unjail...
+
+
+
+
+
+
+
+
+
+
+
+
