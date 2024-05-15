@@ -29,35 +29,61 @@ class Utility(commands.Cog):
         # Cleanup code here...
         pass
 
-    @commands.command(name="ping", description="Check bot latency")
+    #@commands.command(name="ping", description="Check bot latency")
+    #async def ping(self, ctx):
+    #    start_time = datetime.datetime.now(datetime.timezone.utc)
+    #    ws_latency = (start_time - ctx.message.created_at).total_seconds() * 1000
+    #    print(f"Debug: Command received at {ctx.message.created_at}, responded at {start_time}, ws_latency: {ws_latency}ms")  # Debug log
+    #
+    #    rest_latency = round(self.bot.latency * 1000, 2)
+    #    uptime = start_time - self.start_time
+    #    uptime_days = uptime.days if uptime.days is not None else 0
+    #
+    #    ping_message = f"{Emojis.ping} {ctx.author.mention} **websocket** `{int(ws_latency)} ms` , rest `{rest_latency} ms` (since: `{uptime_days} days ago)`"
+    #    embed = discord.Embed(description=ping_message, color=Colors.green)
+    #    await ctx.send(embed=embed)
+
+   #@commands.command(name="ping", description="Check bot latency")
+   #async def ping(self, ctx):
+   #    # Calculate REST API latency
+   #    rest_latency = round(self.bot.latency * 1000)  # Round trip time in milliseconds
+   #
+   #    # Create an embed with a playful message and the latency
+   #    embed = discord.Embed(color=Colors.default, description=f"*pings a hot woman*: {rest_latency}ms")
+   #
+   #    # Send the embed as a reply to the command
+   #    msg = await ctx.reply(embed=embed)
+        
+
+
+
+    @commands.command(extras={"Category": "Info"}, usage="ping", help="View bot latency", aliases=["latency", "ms"])
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def ping(self, ctx):
+        # Calculate REST API latency
+        rest_latency = round(self.bot.latency * 1000)  # Round trip time in milliseconds
+    
         # Get current time in UTC timezone
         now = datetime.datetime.now(datetime.timezone.utc)
         
         # Measure websocket latency
         ws_latency = (now - ctx.message.created_at).total_seconds() * 1000
-        
-        # Calculate rest latency (message round trip)
-        rest_latency = round(self.bot.latency * 1000, 2)
-        
-        # Calculate uptime
-        uptime = now - self.start_time
-        uptime_days = uptime.days if uptime.days is not None else 0
     
-        # Create the ping message with custom emojis
-        ping_message = f"{Emojis.ping} {ctx.author.mention} **websocket** `{int(ws_latency)} ms` , rest `{rest_latency} ms` (since: `{uptime_days} days ago)`"
-        
-        # Create an embed with the ping message as description
-        embed = discord.Embed(description=ping_message, color=Colors.green)
+        # Create an embed with both latencies
+        embed = discord.Embed(
+            color=Colors.default,  # Ensure self.bot.color is defined, or replace with discord.Color.blue() or similar
+            description=f"**WebSocket latency**: `{int(ws_latency)}ms`\n**REST API latency**: `{rest_latency}ms`\n**Shard ID**: `{ctx.guild.shard_id}`"
+        )
     
-        # Send the embed
+        # Send the embed as a reply to the command
         await ctx.send(embed=embed)
+
 
     @commands.command(help="Set slowmode for the current channel", description="Moderation")
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def slowmode(self, ctx, action: str = None, seconds: int = 2):  # Default value for seconds is 2
         if action is None:
-            embed = discord.Embed(
+            embed = discord.Embed(  
                 title="Command: Slowmode",
                 description="Restricts members to sending one message per interval.\nSyntax & Example: ```Syntax: !slowmode <seconds> <channel>\nExample: !slowmode 10 #general```",
                 color=Colors.default
