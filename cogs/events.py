@@ -27,20 +27,6 @@ class Events(commands.Cog, name="events"):
         await message.send(embed=embed)
 
 
-def blacklist(): 
- async def predicate(ctx): 
-   if ctx.guild is None:
-     return False
-   async with ctx.bot.db.cursor() as cursor:
-    await cursor.execute("SELECT * FROM nodata WHERE user = {}".format(ctx.author.id))
-    check = await cursor.fetchone()
-    if check is not None: 
-     await ctx.reply(embed=discord.Embed(color=Colors.default, description=f"{ctx.author.mention}: you're blacklisted. [join support](https://discord.gg/abort) to be unblacklisted."), mention_author=False)
-    return check is None
- return commands.check(predicate)
-
-
-
     # Include other event handlers and methods as necessary
 
 

@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS setme (
   channel_id INTEGER NOT NULL,
   role_id INTEGER NOT NULL,
   guild_id INTEGER NOT NULL,
+  log_channel_id INTEGER NOT NULL,
   PRIMARY KEY (guild_id)
 );
 
@@ -78,3 +79,4 @@ CREATE TABLE IF NOT EXISTS antinuke (
     module TEXT,
     punishment TEXT
 );
+

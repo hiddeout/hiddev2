@@ -4,5 +4,5 @@ discord.py==2.3.2
 discord_ios==1.1.1
 python-dotenv==1.0.1
 pytz==2024.1
-datetime
-
+datetime==4.3
+instaloader==4.2.1

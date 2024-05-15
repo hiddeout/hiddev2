@@ -114,7 +114,7 @@ class General(commands.Cog, name="General"):
             # embed.add_field(name="Mutual Servers", value="12", inline=True)
 
         footer_text = "User in this server." if isinstance(user, discord.Member) else "User not in this server."
-        embed.set_footer(text=footer_text)
+        embed.set_footer(text=footer_text)  
 
         await ctx.send(embed=embed)
 
